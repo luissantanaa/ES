@@ -24,6 +24,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 
 import org.json.JSONObject;
 
@@ -40,28 +41,49 @@ public class StockController {
     }
     
     @RequestMapping("/stock_id/{id}")
-    public String stock_info(@PathVariable String id) throws Exception{
+    public String stock_info(@PathVariable String id, Model model) throws Exception{
        
-        HttpGet JSONRequest = new HttpGet("https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol="+id+"&interval=60min&outputsize=compact&apikey=JMLWD2TDC4G2OKTX");
+        //HttpGet JSONRequest = new HttpGet("https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol="+id+"&interval=60min&outputsize=compact&apikey=JMLWD2TDC4G2OKTX");
+        HttpGet JSONRequest = new HttpGet("https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords="+id+"&apikey=JMLWD2TDC4G2OKTX");
         try (CloseableHttpResponse response = httpClient.execute(JSONRequest)) {
             HttpEntity entity = response.getEntity();
             Header headers = entity.getContentType();
             
 
             if (entity != null) {
+                JSONObject json_tmp = null;
                 // return it as a String
                 String result = EntityUtils.toString(entity);
                 JSONObject json = new JSONObject(result);
                 
                 System.out.println(json);
-                json = (JSONObject) json.get("Time Series (60min)");
-                System.out.println(json);
-            
-                System.out.println(json.get("2020-02-13 09:30:00"));
+                JSONArray tmp = (JSONArray) json.get("bestMatches");
+                
+                for(int i =0;i<tmp.length();i++){
+                   json_tmp = tmp.getJSONObject(i);
+                   String symbol = (String) json_tmp.get("1. symbol");
+                   if(symbol.equals(id)){
+                       break;
+                   }
+                   
+                }
+                
+                if(json_tmp != null){
+                    System.out.println(json_tmp);
+                    model.addAttribute("name", (String) json_tmp.get("2. name"));
+                    model.addAttribute("region", json_tmp.get("4. region"));
+                    model.addAttribute("currency", json_tmp.get("8. currency"));
+                    model.addAttribute("type", json_tmp.get("3. type"));
+                    model.addAttribute("timezone", json_tmp.get("7. timezone"));
+                    model.addAttribute("symbol", json_tmp.get("1. symbol"));
+                    
+                }
+                
+                
             }
 
         }
-        return "stocks_list";
+        return "stock";
     }
     
 }
