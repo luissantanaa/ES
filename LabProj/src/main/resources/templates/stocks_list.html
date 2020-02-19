@@ -16,19 +16,26 @@ and open the template in the editor.
         <link rel="stylesheet" href="/css/style.css" />
     </head>
     <body>
-        <div>Stocks List</div>
-        <table class="table" id="product-table">
-            <thead>
-                <tr>
-                    <th>Stock Name</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="stock : ${list_of_stocks}">
-                    <td><a th:text="${stock}" th:href="@{'/stock_id/' + ${stock}}"></a></td>
-                </tr>
-            </tbody>
-        </table>
+        <br/>
+        <br/>
         
-        <p>OK</p>
+        <div align="center">
+            <h1>Stocks List</h1>
+        </div>
+        
+        <br/>
+        <div class="container" align="center">
+            <table class="table" id="product-table">
+                <thead>
+                    <tr>
+                        <th>Stock Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="stock : ${list_of_stocks}">
+                        <td><a th:text="${stock}" th:href="@{'/stock_id/' + ${stock}}"></a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </body>
