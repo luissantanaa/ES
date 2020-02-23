@@ -62,8 +62,8 @@ and open the template in the editor.
         </div>
       </header>
     </div>
-    <div class="ftco-blocks-cover-1">
-      <div class="site-section-cover overlay" style="background-image: url('images/hero_1.jpg')">
+    <div class="ftco-blocks-cover-1" style="background-color: black">
+      <div class="site-section-cover overlay" style="min-height: 1080px">
         <div class="container">
           <div class="row align-items-center justify-content-center">
             <div class="col-md-7 text-center">
@@ -73,10 +73,10 @@ and open the template in the editor.
           <br/>
         <br/>
         <div align="center">
-            <h2>Market Stock History <p th:text="${id}"></p></h2>
+            <h2 style="color:gainsboro">Market Stock History <p th:text="${id}"></p></h2>
         </div>
         <br/>
-        <div style="overflow-y:scroll; height:400px;" class="container" align="center">
+        <div style="overflow-y:scroll; height:700px;" class="container" align="center">
             <table class="table" id="history" style = "width:100%">
                 <thead>
                     <tr style="text-align: center">
@@ -88,7 +88,7 @@ and open the template in the editor.
                         <th>Close</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody style="color: white">
                     <tr  th:each="hist : ${historico}" style="text-align: center">
                         <td th:text="${hist.date}"></td>
                         <td th:text="${hist.low}"></td>
