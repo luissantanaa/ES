@@ -30,12 +30,18 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
-
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import rep.StockRep;
+
 
 @Controller
 public class StockController {
-    // one instance, reuse
+    
+    @Autowired
+    StockRep StockRepository;
+    
+    
     private int counter =0;
     private Instant time_start = Instant.MIN;
     private Instant time_end;
@@ -147,9 +153,9 @@ public class StockController {
                 JSONObject tmp_2 = (JSONObject) json.get("Time Series (60min)"); 
                 Iterator<String> keys = tmp_2.keys();
                
-                ArrayList<StockHistory> history_list = new ArrayList<>();
+                ArrayList<StockHistoryEntry> history_list = new ArrayList<>();
                 
-                StockHistory to_html;
+                StockHistoryEntry to_html;
                 while(keys.hasNext()) {
                     String key = keys.next();
                     if (tmp_2.get(key) instanceof JSONObject) {
@@ -160,7 +166,7 @@ public class StockController {
                         double high = Double.parseDouble((String) tmp_3.get("2. high"));
                         double close = Double.parseDouble((String) tmp_3.get("4. close"));
                         
-                        to_html = new StockHistory((String) key, low,volume,open,high,close);
+                        to_html = new StockHistoryEntry((String) id,(String) key, low,volume,open,high,close);
                         history_list.add(to_html);
                         
                     }
