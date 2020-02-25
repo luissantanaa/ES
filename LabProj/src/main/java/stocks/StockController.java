@@ -32,6 +32,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import rep.StockRep;
 
 
@@ -188,5 +189,10 @@ public class StockController {
     }
     
     
+    @Scheduled(fixedRate = 60000)
+    public void getStockinfo(){
+        //make requests to api and save it to rep using mysql db
+        
+    }
     
 }

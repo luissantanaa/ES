@@ -10,7 +10,6 @@ package stocks;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.util.ArrayList;
 
 /**
  *
@@ -29,7 +28,6 @@ public class Stock implements Serializable {
     private String currency;
     private String timezone;
     
-    private ArrayList<StockHistoryEntry> history = new ArrayList<>();
     
     
     public Stock(){}
