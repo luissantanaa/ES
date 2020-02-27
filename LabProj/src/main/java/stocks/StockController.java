@@ -15,6 +15,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import jdk.nashorn.internal.parser.JSONParser;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +36,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import rep.StockRep;
+import rep.StockRepHistory;
 
 
 @Controller
@@ -41,6 +44,10 @@ public class StockController {
     
     @Autowired
     StockRep StockRepository;
+    
+    @Autowired
+    StockRepHistory StockHistoryRepository;
+    
     
     
     private int counter =0;
@@ -55,6 +62,8 @@ public class StockController {
         return "stocks_list";
     }
     
+    
+    //Need to decide what happens with this function, information never changes, info statically added to DB?
     @RequestMapping("/stock_id/{id}")
     public String stock_info(@PathVariable String id, Model model) throws Exception{
         this.time_end = Instant.now();
@@ -137,52 +146,24 @@ public class StockController {
             }
         }
         
-        HttpGet JSONRequest = new HttpGet("https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol="+id+"&interval=60min&outputsize=compact&apikey=JMLWD2TDC4G2OKTX");
-        try (CloseableHttpResponse response = httpClient.execute(JSONRequest)) {
-            HttpEntity entity = response.getEntity();
-            Header headers = entity.getContentType();
-            
-
-            if (entity != null) {
-                JSONObject json_tmp = null;
-                // return it as a String
-                String result = EntityUtils.toString(entity);
-                JSONObject json = new JSONObject(result);
-                
-                System.out.println(json);
-                System.out.print(json.get("Time Series (60min)"));
-                JSONObject tmp_2 = (JSONObject) json.get("Time Series (60min)"); 
-                Iterator<String> keys = tmp_2.keys();
-               
-                ArrayList<StockHistoryEntry> history_list = new ArrayList<>();
-                
-                StockHistoryEntry to_html;
-                while(keys.hasNext()) {
-                    String key = keys.next();
-                    if (tmp_2.get(key) instanceof JSONObject) {
-                        JSONObject tmp_3 = (JSONObject) tmp_2.get(key); 
-                        double low = Double.parseDouble((String) tmp_3.get("3. low"));
-                        int volume = Integer.parseInt((String) tmp_3.get("5. volume"));
-                        double open = Double.parseDouble((String) tmp_3.get("1. open"));
-                        double high = Double.parseDouble((String) tmp_3.get("2. high"));
-                        double close = Double.parseDouble((String) tmp_3.get("4. close"));
-                        
-                        to_html = new StockHistoryEntry((String) id,(String) key, low,volume,open,high,close);
-                        history_list.add(to_html);
-                        
-                    }
-                }
-                
-                Collections.sort(history_list, Collections.reverseOrder());
-                
-                if(history_list.size() != 0){
-                    model.addAttribute("historico", history_list);
-                    model.addAttribute("symbol", id);
-                }
-                
+        List<StockHistoryEntry> historico =StockHistoryRepository.findAll();
+        
+        List<StockHistoryEntry> historico_filtered = new LinkedList<>();
+        
+        for(StockHistoryEntry e : historico){
+            if(e.getId().equals(id)){
+                historico_filtered.add(e);
                 
             }
         }
+        
+        
+        Collections.sort(historico_filtered, Collections.reverseOrder());
+                
+        
+        model.addAttribute("historico",historico_filtered);
+        
+           
         
         
         return "s_history";
@@ -190,8 +171,51 @@ public class StockController {
     
     
     @Scheduled(fixedRate = 60000)
-    public void getStockinfo(){
+    public void getStockinfo() throws Exception{
         //make requests to api and save it to rep using mysql db
+        String[] stock_comp = {"TSLA", "NFLX"};
+        
+        for(String x : stock_comp){
+            HttpGet JSONRequest = new HttpGet("https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=" + x +"&interval=1min&outputsize=compact&apikey=JMLWD2TDC4G2OKTX");
+            try (CloseableHttpResponse response = httpClient.execute(JSONRequest)) {
+                HttpEntity entity = response.getEntity();
+                Header headers = entity.getContentType();
+
+
+                if (entity != null) {
+                    JSONObject json_tmp = null;
+                    // return it as a String
+                    String result = EntityUtils.toString(entity);
+                    JSONObject json = new JSONObject(result);
+
+                    System.out.println(json);
+                    System.out.print(json.get("Time Series (1min)"));
+                    JSONObject tmp_2 = (JSONObject) json.get("Time Series (1min)"); 
+                    Iterator<String> keys = tmp_2.keys();
+
+                    ArrayList<StockHistoryEntry> history_list = new ArrayList<>();
+
+                    StockHistoryEntry saveToDB = null;
+                    while(keys.hasNext()) {
+                        String key = keys.next();
+                        if (tmp_2.get(key) instanceof JSONObject) {
+                            JSONObject tmp_3 = (JSONObject) tmp_2.get(key); 
+                            double low = Double.parseDouble((String) tmp_3.get("3. low"));
+                            int volume = Integer.parseInt((String) tmp_3.get("5. volume"));
+                            double open = Double.parseDouble((String) tmp_3.get("1. open"));
+                            double high = Double.parseDouble((String) tmp_3.get("2. high"));
+                            double close = Double.parseDouble((String) tmp_3.get("4. close"));
+
+                            saveToDB = new StockHistoryEntry((String) x,(String) key, low,volume,open,high,close);
+                            break;
+                        }
+
+                    }
+                    
+                    StockHistoryRepository.save(saveToDB);
+                }
+            }
+        }
         
     }
     

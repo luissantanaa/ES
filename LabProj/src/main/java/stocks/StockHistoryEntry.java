@@ -8,11 +8,14 @@ package stocks;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 /**
  *
  * @author alexandre
  */
 @Entity
+
+@IdClass(HistoryId.class)
 public class StockHistoryEntry implements Comparable<StockHistoryEntry>, Serializable {
     private double low =0.0;
     private int volume =0;
