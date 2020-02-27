@@ -66,63 +66,21 @@ public class StockController {
     //Need to decide what happens with this function, information never changes, info statically added to DB?
     @RequestMapping("/stock_id/{id}")
     public String stock_info(@PathVariable String id, Model model) throws Exception{
-        this.time_end = Instant.now();
+        List<Stock> stock_information =StockRepository.findAll();
         
-        if((double)Duration.between(this.time_start, this.time_end).toMinutes() > 1  ){
-            this.time_start = Instant.now();
-            this.counter =1;
-        }
-        else{
-            if(this.counter < 5){
-                this.counter+=1;
-            }else{
-                double time = (double)Duration.between(this.time_start, this.time_end).toMillis();
-                time = time/100;
-                time = 60-time;
-                model.addAttribute("time", time);
-                return "api_error";
+        Stock s_tmp = null;
+        for(Stock s : stock_information){
+            if(s.getID().equals(s)){
+                s_tmp = s;
+                break;
             }
         }
-       
-        HttpGet JSONRequest = new HttpGet("https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords="+id+"&apikey=JMLWD2TDC4G2OKTX");
-        try (CloseableHttpResponse response = httpClient.execute(JSONRequest)) {
-            HttpEntity entity = response.getEntity();
-            Header headers = entity.getContentType();
-            
+        
+        
+        model.addAttribute("stock",s_tmp);
+        
+        
 
-            if (entity != null) {
-                JSONObject json_tmp = null;
-                // return it as a String
-                String result = EntityUtils.toString(entity);
-                JSONObject json = new JSONObject(result);
-                
-                System.out.println(json);
-                JSONArray tmp = (JSONArray) json.get("bestMatches");
-                
-                for(int i =0;i<tmp.length();i++){
-                   json_tmp = tmp.getJSONObject(i);
-                   String symbol = (String) json_tmp.get("1. symbol");
-                   if(symbol.equals(id)){
-                       break;
-                   }
-                   
-                }
-                
-                if(json_tmp != null){
-                    System.out.println(json_tmp);
-                    model.addAttribute("name", (String) json_tmp.get("2. name"));
-                    model.addAttribute("region", json_tmp.get("4. region"));
-                    model.addAttribute("currency", json_tmp.get("8. currency"));
-                    model.addAttribute("type", json_tmp.get("3. type"));
-                    model.addAttribute("timezone", json_tmp.get("7. timezone"));
-                    model.addAttribute("symbol", json_tmp.get("1. symbol"));
-                    
-                }
-                
-                
-            }
-
-        }
         return "stock";
     }
     @RequestMapping("/history/{id}")
@@ -171,7 +129,7 @@ public class StockController {
     
     
     @Scheduled(fixedRate = 60000)
-    public void getStockinfo() throws Exception{
+    public void getStockHistory() throws Exception{
         //make requests to api and save it to rep using mysql db
         String[] stock_comp = {"TSLA", "NFLX"};
         
@@ -217,6 +175,69 @@ public class StockController {
             }
         }
         
+    }
+    
+    
+    @RequestMapping("/add")
+    public String addStockInfo() throws Exception{
+        this.time_end = Instant.now();
+        
+        if((double)Duration.between(this.time_start, this.time_end).toMinutes() > 1  ){
+            this.time_start = Instant.now();
+            this.counter =1;
+        }
+        else{
+            if(this.counter < 5){
+                this.counter+=1;
+            }else{
+                double time = (double)Duration.between(this.time_start, this.time_end).toMillis();
+                time = time/100;
+                time = 60-time;
+            }
+        }
+        
+        String[] stocks = {"TSLA", "NFLX"};
+        
+        for(String x : stocks){
+
+            HttpGet JSONRequest = new HttpGet("https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords="+x+"&apikey=JMLWD2TDC4G2OKTX");
+            try (CloseableHttpResponse response = httpClient.execute(JSONRequest)) {
+                HttpEntity entity = response.getEntity();
+                Header headers = entity.getContentType();
+
+
+                if (entity != null) {
+                    JSONObject json_tmp = null;
+                    // return it as a String
+                    String result = EntityUtils.toString(entity);
+                    JSONObject json = new JSONObject(result);
+
+                    System.out.println(json);
+                    JSONArray tmp = (JSONArray) json.get("bestMatches");
+
+                    for(int i =0;i<tmp.length();i++){
+                       json_tmp = tmp.getJSONObject(i);
+                       String symbol = (String) json_tmp.get("1. symbol");
+                       if(symbol.equals(x)){
+                           break;
+                       }
+
+                    }
+
+                    if(json_tmp != null){
+                        System.out.println(json_tmp);
+                        
+                        Stock s = new Stock((String) x, (String) json_tmp.get("2. name"),(String) json_tmp.get("4. region"),(String) json_tmp.get("8. currency"),(String) json_tmp.get("3. type"),(String) json_tmp.get("7. timezone") );
+                        
+                        StockRepository.save(s);
+                    }
+
+
+                }
+
+            }
+        }
+        return "index";
     }
     
 }

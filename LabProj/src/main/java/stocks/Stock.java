@@ -26,11 +26,23 @@ public class Stock implements Serializable {
     private String name;
     private String region;
     private String currency;
+    private String type;
     private String timezone;
     
-    
+
     
     public Stock(){}
+    
+    public Stock(String ID, String name, String region, String currency, String type,String timezone) {
+        this.ID = ID;
+        this.name = name;
+        this.region = region;
+        this.currency = currency;
+        this.type=type;
+        this.timezone = timezone;
+    }
+    
+    
     
     public Stock(String ID, String name){
         this.ID = ID;
@@ -76,6 +88,14 @@ public class Stock implements Serializable {
 
     public void setTimezone(String timezone) {
         this.timezone = timezone;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
     
     

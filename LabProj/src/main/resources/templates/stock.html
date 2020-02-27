@@ -94,18 +94,18 @@ and open the template in the editor.
                 </thead>
                 <tbody>
                     <tr style="text-align: center;color:white">
-                        <td th:text="${name}"></td>
-                        <td th:text="${symbol}"></td>
-                        <td th:text="${region}"></td>
-                        <td th:text="${currency}"></td>
-                        <td th:text="${type}"></td>
-                        <td th:text="${timezone}"></td>
+                        <td th:text="${stock.name}"></td>
+                        <td th:text="${stock.ID}"></td>
+                        <td th:text="${stock.region}"></td>
+                        <td th:text="${stock.currency}"></td>
+                        <td th:text="${stock.type}"></td>
+                        <td th:text="${stock.timezone}"></td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div align="center">
-            <p><a th:href="@{'/history/' + ${symbol}}">Stock History</a></p>
+            <p><a th:href="@{'/history/' + ${stock.ID}}">Stock History</a></p>
         </div>
        </div>
             </div>
