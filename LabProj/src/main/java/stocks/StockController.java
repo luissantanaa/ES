@@ -70,12 +70,13 @@ public class StockController {
         
         Stock s_tmp = null;
         for(Stock s : stock_information){
-            if(s.getID().equals(s)){
+            if(s.getID().equals(id)){
                 s_tmp = s;
                 break;
             }
         }
         
+        System.out.print(s_tmp);
         
         model.addAttribute("stock",s_tmp);
         
@@ -147,7 +148,10 @@ public class StockController {
                     JSONObject json = new JSONObject(result);
 
                     System.out.println(json);
+                    System.out.print("\n");
                     System.out.print(json.get("Time Series (1min)"));
+                    
+                    System.out.print("\n");
                     JSONObject tmp_2 = (JSONObject) json.get("Time Series (1min)"); 
                     Iterator<String> keys = tmp_2.keys();
 
@@ -237,7 +241,8 @@ public class StockController {
 
             }
         }
-        return "index";
+        return "redirect:/";
+
     }
     
 }

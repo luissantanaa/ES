@@ -97,6 +97,11 @@ public class Stock implements Serializable {
     public void setType(String type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return "Stock{" + "ID=" + ID + ", name=" + name + ", region=" + region + ", currency=" + currency + ", type=" + type + ", timezone=" + timezone + '}';
+    }
     
     
     
