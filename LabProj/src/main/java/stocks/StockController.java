@@ -139,7 +139,7 @@ public class StockController {
             try (CloseableHttpResponse response = httpClient.execute(JSONRequest)) {
                 HttpEntity entity = response.getEntity();
                 Header headers = entity.getContentType();
-
+                
 
                 if (entity != null) {
                     JSONObject json_tmp = null;
@@ -154,25 +154,28 @@ public class StockController {
                     System.out.print("\n");
                     JSONObject tmp_2 = (JSONObject) json.get("Time Series (1min)"); 
                     Iterator<String> keys = tmp_2.keys();
-
+                    System.out.print("OK\n");
                     ArrayList<StockHistoryEntry> history_list = new ArrayList<>();
-
+                    ArrayList<StockHistoryEntry> tmp = new ArrayList<>();
                     StockHistoryEntry saveToDB = null;
+                   
                     while(keys.hasNext()) {
                         String key = keys.next();
-                        if (tmp_2.get(key) instanceof JSONObject) {
-                            JSONObject tmp_3 = (JSONObject) tmp_2.get(key); 
-                            double low = Double.parseDouble((String) tmp_3.get("3. low"));
-                            int volume = Integer.parseInt((String) tmp_3.get("5. volume"));
-                            double open = Double.parseDouble((String) tmp_3.get("1. open"));
-                            double high = Double.parseDouble((String) tmp_3.get("2. high"));
-                            double close = Double.parseDouble((String) tmp_3.get("4. close"));
+                        
+                        JSONObject tmp_3 =  (JSONObject) tmp_2.get(key);
+                        double low = Double.parseDouble((String) tmp_3.get("3. low"));
+                        int volume = Integer.parseInt((String) tmp_3.get("5. volume"));
+                        double open = Double.parseDouble((String) tmp_3.get("1. open"));
+                        double high = Double.parseDouble((String) tmp_3.get("2. high"));
+                        double close = Double.parseDouble((String) tmp_3.get("4. close"));
 
-                            saveToDB = new StockHistoryEntry((String) x,(String) key, low,volume,open,high,close);
-                            break;
-                        }
-
+                        saveToDB = new StockHistoryEntry((String) x,(String)key, low,volume,open,high,close);
+                        tmp.add(saveToDB);
                     }
+                    Collections.sort(tmp, Collections.reverseOrder());
+                    
+                    saveToDB= tmp.remove(0);
+                    
                     
                     StockHistoryRepository.save(saveToDB);
                 }
