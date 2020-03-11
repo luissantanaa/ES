@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import jdk.nashorn.internal.parser.JSONParser;
+import kafka.KafkaConsumer;
+import kafka.KafkaProducer;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -35,6 +37,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import rep.LoggerRep;
 import rep.StockRep;
 import rep.StockRepHistory;
 
@@ -48,6 +51,14 @@ public class StockController {
     @Autowired
     StockRepHistory StockHistoryRepository;
     
+    @Autowired
+    KafkaProducer producer;
+    
+    @Autowired
+    LoggerRep repLogger;
+    
+    @Autowired
+    KafkaConsumer consumer;
     
     
     private int counter =0;
@@ -59,6 +70,7 @@ public class StockController {
     @RequestMapping("/stocks")
     public String stock_list(Model model){
         model.addAttribute("list_of_stocks", this.stock_comp);
+        producer.sendMessage("/stocks");
         return "stocks_list";
     }
     
@@ -66,6 +78,7 @@ public class StockController {
     //Need to decide what happens with this function, information never changes, info statically added to DB?
     @RequestMapping("/stock_id/{id}")
     public String stock_info(@PathVariable String id, Model model) throws Exception{
+        producer.sendMessage("/stocks_id/" + id);
         List<Stock> stock_information =StockRepository.findAll();
         
         Stock s_tmp = null;
@@ -86,6 +99,7 @@ public class StockController {
     }
     @RequestMapping("/history/{id}")
     public String stock_history(@PathVariable String id, Model model) throws Exception{
+        producer.sendMessage("/history/" + id);
         this.time_end = Instant.now();
         
         if((double)Duration.between(this.time_start, this.time_end).toMinutes() > 1  ){
@@ -246,6 +260,12 @@ public class StockController {
         }
         return "redirect:/";
 
+    }
+    
+    
+    @Scheduled(fixedRate = 60000)
+    public void consumeKafkaMessages() throws Exception{
+        //for message in consumer loggerrep.save(new KafkaMessage(message))
     }
     
 }
