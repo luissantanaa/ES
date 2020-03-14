@@ -8,9 +8,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@ComponentScan({"stocks"})
+@ComponentScan({"stocks","kafka"})
 @EnableJpaRepositories({"rep"})
-@EntityScan({"stocks"})
+@EntityScan({"stocks","kafka"})
 @EnableScheduling
 public class LabProjApplication{
         

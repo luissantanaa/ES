@@ -36,6 +36,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.Scheduled;
 import rep.LoggerRep;
 import rep.StockRep;
@@ -67,6 +68,7 @@ public class StockController {
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
     private final String[] stock_comp = {"QCOM","PYPL","ORCL","NVDA","TSLA", "MSFT","FB", "GM", "NFLX", "AMZN", "IRBT", "CAT", "CSCO", "NKE", "SNE", "AAPL", "MCD", "DIS", "BAC", "INTC", "AMD", "ADBE", "HPE", "IBM", "DELL", "SPOT"};
     
+   
     @RequestMapping("/stocks")
     public String stock_list(Model model){
         model.addAttribute("list_of_stocks", this.stock_comp);
@@ -76,6 +78,7 @@ public class StockController {
     
     
     //Need to decide what happens with this function, information never changes, info statically added to DB?
+   
     @RequestMapping("/stock_id/{id}")
     public String stock_info(@PathVariable String id, Model model) throws Exception{
         producer.sendMessage("/stocks_id/" + id);
@@ -97,6 +100,8 @@ public class StockController {
 
         return "stock";
     }
+    
+   
     @RequestMapping("/history/{id}")
     public String stock_history(@PathVariable String id, Model model) throws Exception{
         producer.sendMessage("/history/" + id);
@@ -269,3 +274,4 @@ public class StockController {
     }
     
 }
+    
