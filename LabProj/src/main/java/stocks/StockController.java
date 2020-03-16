@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import jdk.nashorn.internal.parser.JSONParser;
 import kafka.KafkaConsumer;
+import kafka.KafkaMessage;
 import kafka.KafkaProducer;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,8 +59,6 @@ public class StockController {
     @Autowired
     LoggerRep repLogger;
     
-    @Autowired
-    KafkaConsumer consumer;
     
     
     private int counter =0;
@@ -267,10 +266,17 @@ public class StockController {
 
     }
     
-    
-    @Scheduled(fixedRate = 60000)
-    public void consumeKafkaMessages() throws Exception{
-        //for message in consumer loggerrep.save(new KafkaMessage(message))
+    @RequestMapping("/logreport")
+    public String consumeKafkaMessages(Model model) throws Exception{
+       List<KafkaMessage> logs = repLogger.findAll();
+       
+       Collections.sort(logs, Collections.reverseOrder());
+                
+        
+       model.addAttribute("logs",logs);
+       
+       return "logs";
+        
     }
     
 }

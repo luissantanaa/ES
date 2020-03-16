@@ -5,6 +5,7 @@
  */
 package kafka;
 
+import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,7 +17,7 @@ import javax.persistence.Id;
  */
 
 @Entity
-public class KafkaMessage {
+public class KafkaMessage implements Comparable<KafkaMessage>, Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +25,12 @@ public class KafkaMessage {
     
     private String Message;
 
+    public KafkaMessage() {
+    }
+
+    
+    
+    
     public KafkaMessage(String Message) {
         this.Message = Message;
     }
@@ -36,6 +43,11 @@ public class KafkaMessage {
 
     public void setMessage(String Message) {
         this.Message = Message;
+    }
+
+    @Override
+    public int compareTo(KafkaMessage t) {
+       return this.getMessage().compareTo(t.getMessage());
     }
     
     

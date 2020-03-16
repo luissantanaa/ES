@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.kafka.KafkaProperties.Producer;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.kafka.core.KafkaTemplate;
+import rep.LoggerRep;
 
 /**
  *
@@ -25,8 +26,12 @@ public class KafkaConsumer {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(Producer.class);
 
+    @Autowired
+    LoggerRep repLogger;
+     
     @KafkaListener(topics = "stocks", groupId = "group_id")
-    public void consume(String message) throws IOException {
-        logger.info(String.format("#### -> Consumed message -> %s", message));
+    public void consume(String message) throws IOException{
+        logger.info(String.format("%s", message));
+        repLogger.save(new KafkaMessage(message));
     }
 }
