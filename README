@@ -3,7 +3,7 @@ Luís Santana 80304
 
 1. Correr sudo docker-compose up
 2. Correr aplicação
-3. Ir a pagina /add
+3. Ir a pagina /add, tesla e netflix adicionadas à base de dados, pode aceder a estas 2 empresas sempre que quiser.
 DONE
 
 Portos:
