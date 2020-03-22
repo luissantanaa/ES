@@ -1,0 +1,11 @@
+1. Correr sudo docker-compose up
+2. Correr aplicação
+3. Ir a pagina /add
+DONE
+
+Portos:
+9191 (aplicação)
+9092 (KAFKA)
+2181 (zookeeper)
+3306 (MySql)
+8080 (Adminer)
